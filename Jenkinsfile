@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+       environment {
+    DOCKER_CREDENTIALS = '7c910bc4-e2e4-48a4-857c-51be93277e96'
+       }
     stages {
         stage('Clone Repository') {
             steps {
@@ -14,14 +16,18 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: '7c910bc4-e2e4-48a4-857c-51be93277e96', usernameVariable: 'rohith1305', passwordVariable: 'Rohith@1305')]) {
-                    sh 'echo  | docker login -u  --password-stdin'
+       stage('Push to Docker Hub') {
+    steps {
+        script {
+            withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                // Login securely using --password-stdin
+                sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+
                     sh 'docker push rohith1305/ecommerce-backend:latest'
                 }
             }
         }
+       }
 
         stage('Deploy') {
             steps {
